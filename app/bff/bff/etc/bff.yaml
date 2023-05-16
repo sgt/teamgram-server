@@ -58,3 +58,8 @@ SyncClient:
   Topic:   "Sync-T"
   Brokers:
     - 127.0.0.1:9092
+
+LdapClient:
+  URL: "ldap://172.16.10.101"
+  BaseDN: "cn=users,cn=accounts,dc=ipa,dc=abc-p,dc=com"
+  TimeLimit: 8

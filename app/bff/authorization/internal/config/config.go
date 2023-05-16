@@ -25,6 +25,12 @@ import (
 	"github.com/zeromicro/go-zero/zrpc"
 )
 
+type LdapClientConf struct {
+	URL       string
+	BaseDN    string
+	TimeLimit int
+}
+
 type Config struct {
 	zrpc.RpcServerConf
 	KV                        kv.KvConf
@@ -38,4 +44,5 @@ type Config struct {
 	SyncClient                *kafka.KafkaProducerConf
 	SignInServiceNotification []conf.MessageEntityConfig `json:",optional"`
 	SignInMessage             []conf.MessageEntityConfig `json:",optional"`
+	LdapClient                LdapClientConf
 }
