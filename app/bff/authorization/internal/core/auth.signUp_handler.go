@@ -55,7 +55,6 @@ import (
 // AuthSignUp
 // auth.signUp#80eee427 phone_number:string phone_code_hash:string first_name:string last_name:string = auth.Authorization;
 func (c *AuthorizationCore) AuthSignUp(in *mtproto.TLAuthSignUp) (*mtproto.Auth_Authorization, error) {
-	c.svcCtx.Config.
 	if c.svcCtx.Plugin != nil {
 		c.svcCtx.Plugin.OnAuthAction(c.ctx,
 			c.MD.PermAuthKeyId,
