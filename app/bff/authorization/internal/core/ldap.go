@@ -1,3 +1,11 @@
+/*
+This is an effort to inject LDAP authentication into telegram's auth process.
+
+No protocol specification altered: we pass LDAP credentials disguised as phone number.
+Upon successful authentication, we fetch the user's phone number, first and last names,
+then pass them on to the regular telegram signin/signup logic.
+*/
+
 package core
 
 import (
@@ -75,6 +83,7 @@ func getUserDataFromLdap(credentials LdapCredentials, ldapConfig config.LdapClie
 	return &userData, nil
 }
 
+// Parse login string in the form "ldap username password" into credentials struct.
 func parseLdapLogin(loginString string) (*LdapCredentials, error) {
 	credStr, found := strings.CutPrefix(loginString, "ldap ")
 	if !found {
