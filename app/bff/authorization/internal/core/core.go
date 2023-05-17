@@ -20,7 +20,6 @@ package core
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -28,14 +27,12 @@ import (
 
 	"github.com/teamgram/proto/mtproto"
 	"github.com/teamgram/proto/mtproto/rpc/metadata"
-	"github.com/teamgram/teamgram-server/app/bff/authorization/internal/config"
 	"github.com/teamgram/teamgram-server/app/bff/authorization/internal/svc"
 	msgpb "github.com/teamgram/teamgram-server/app/messenger/msg/msg/msg"
 	"github.com/teamgram/teamgram-server/pkg/code/conf"
 	"github.com/teamgram/teamgram-server/pkg/env2"
 	"github.com/teamgram/teamgram-server/pkg/phonenumber"
 
-	"github.com/go-ldap/ldap/v3"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -137,45 +134,4 @@ func (c *AuthorizationCore) pushSignInMessage(ctx context.Context, signInUserId 
 				}).To_OutboxMessage(),
 			})
 	})
-}
-
-func getPhoneNumberFromLdap(username string, password string, ldapConfig config.LdapClientConf) (string, error) {
-	l, err := ldap.DialURL(ldapConfig.URL)
-	if err != nil {
-		return "", err
-	}
-	defer l.Close()
-
-	ldapUsername := fmt.Sprintf("uid=%s,%s", username, ldapConfig.BaseDN)
-	err = l.Bind(ldapUsername, password)
-	if err != nil {
-		return "", err
-	}
-
-	sr, err := l.Search(&ldap.SearchRequest{
-		BaseDN:     ldapConfig.BaseDN,
-		Filter:     fmt.Sprintf("(uid=%s)", username),
-		Attributes: []string{"telephoneNumber"},
-		Scope:      ldap.ScopeWholeSubtree,
-		TimeLimit:  ldapConfig.TimeLimit,
-	})
-	if err != nil {
-		return "", err
-	}
-
-	if len(sr.Entries) != 1 {
-		return "", errors.New("no single entry found")
-	}
-
-	entry := sr.Entries[0]
-	if len(entry.Attributes) != 1 || entry.Attributes[0].Name != "telephoneNumber" {
-		return "", errors.New("no telephone number entries")
-	}
-
-	phoneNumbers := entry.Attributes[0].Values
-	if len(phoneNumbers) == 0 {
-		return "", errors.New("no telephone numbers")
-	}
-
-	return phoneNumbers[0], nil
 }

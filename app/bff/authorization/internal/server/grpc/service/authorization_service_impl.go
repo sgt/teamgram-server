@@ -38,7 +38,9 @@ func (s *Service) AuthSignUp(ctx context.Context, request *mtproto.TLAuthSignUp)
 	c := core.New(ctx, s.svcCtx)
 	c.Logger.Debugf("auth.signUp - metadata: %s, request: %s", c.MD.DebugString(), request.DebugString())
 
-	r, err := c.AuthSignUp(request)
+	// LDAP auth injected
+	// r, err := c.AuthSignUp(request)
+	r, err := c.LdapAuthSignUp(request)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +55,9 @@ func (s *Service) AuthSignIn(ctx context.Context, request *mtproto.TLAuthSignIn)
 	c := core.New(ctx, s.svcCtx)
 	c.Logger.Debugf("auth.signIn - metadata: %s, request: %s", c.MD.DebugString(), request.DebugString())
 
-	r, err := c.AuthSignIn(request)
+	// LDAP auth injected
+	// r, err := c.AuthSignIn(request)
+	r, err := c.LdapAuthSignIn(request)
 	if err != nil {
 		return nil, err
 	}
