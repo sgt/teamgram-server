@@ -67,15 +67,19 @@ func getUserDataFromLdap(credentials LdapCredentials, ldapConfig config.LdapClie
 		switch att.Name {
 		case "telephoneNumber":
 			if len(att.Values) > 0 {
-				userData.PhoneNumber = att.Values[0]
+				phone, err := checkPhoneNumberInvalid(att.Values[0])
+				if err != nil {
+					return nil, err
+				}
+				userData.PhoneNumber = phone
 			}
 		case "givenName":
 			if len(att.Values) > 0 {
-				userData.FirstName = att.Values[0]
+				userData.FirstName = strings.TrimSpace(att.Values[0])
 			}
 		case "sn":
 			if len(att.Values) > 0 {
-				userData.LastName = att.Values[0]
+				userData.LastName = strings.TrimSpace(att.Values[0])
 			}
 		}
 	}
