@@ -83,9 +83,16 @@ func getUserDataFromLdap(credentials LdapCredentials, ldapConfig config.LdapClie
 	return &userData, nil
 }
 
+func CutPrefix(s string, prefix string) (after string, found bool) {
+	if !strings.HasPrefix(s, prefix) {
+		return s, false
+	}
+	return s[len(prefix):], true
+}
+
 // Parse login string in the form "ldap username password" into credentials struct.
 func parseLdapLogin(loginString string) (*LdapCredentials, error) {
-	credStr, found := strings.CutPrefix(loginString, "ldap ")
+	credStr, found := CutPrefix(loginString, "ldap ")
 	if !found {
 		return nil, errors.New("wrong string format")
 	}
