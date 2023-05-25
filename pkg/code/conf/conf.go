@@ -18,6 +18,12 @@
 
 package conf
 
+type LdapClientConf struct {
+	URL       string
+	BaseDN    string
+	TimeLimit int
+}
+
 type SmsVerifyCodeConfig struct {
 	Name          string
 	SendCodeUrl   string

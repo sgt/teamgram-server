@@ -119,6 +119,7 @@ func (s *Server) Initialize() error {
 					SignInMessage:             c.SignInMessage,
 					SignInServiceNotification: c.SignInServiceNotification,
 					UsernameClient:            c.BizServiceClient,
+					LdapClient:                c.LdapClient,
 				},
 				nil,
 				nil))

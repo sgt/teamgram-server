@@ -39,4 +39,5 @@ type Config struct {
 	StatusClient              zrpc.RpcClientConf
 	SignInServiceNotification []conf.MessageEntityConfig `json:",optional"`
 	SignInMessage             []conf.MessageEntityConfig `json:",optional"`
+	LdapClient                conf.LdapClientConf
 }
