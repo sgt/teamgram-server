@@ -38,9 +38,7 @@ func (s *Service) AuthSignUp(ctx context.Context, request *mtproto.TLAuthSignUp)
 	c := core.New(ctx, s.svcCtx)
 	c.Logger.Debugf("auth.signUp - metadata: %s, request: %s", c.MD.DebugString(), request.DebugString())
 
-	// LDAP auth injected
-	// r, err := c.AuthSignUp(request)
-	r, err := c.LdapAuthSignUp(request)
+	r, err := c.AuthSignUp(request)
 	if err != nil {
 		return nil, err
 	}

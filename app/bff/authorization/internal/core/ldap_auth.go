@@ -46,7 +46,7 @@ func (c *AuthorizationCore) getUserDataFromLdap(credentials LdapCredentials) (*L
 	ldapUsername := fmt.Sprintf("uid=%s,%s", credentials.Username, ldapConfig.BaseDN)
 	err = l.Bind(ldapUsername, credentials.Password)
 	if err != nil {
-		c.Logger.Infof("can't bind to ldap server, user '%s'", ldapUsername)
+		c.Logger.Infof("can't bind to ldap server, user '%s'", credentials.Username)
 		return nil, ErrLdapAuth
 	}
 
@@ -124,8 +124,6 @@ func (c *AuthorizationCore) tryGettingLdapData(ldapLoginStr string) (*LdapUserDa
 		return nil, mtproto.ErrPhoneNumberInvalid
 	}
 
-	c.Logger.Debugv(c.svcCtx.Config)
-
 	ldapUserData, err := c.getUserDataFromLdap(*ldapCreds)
 	if err != nil {
 		c.Logger.Errorf("ldap authentication failure for user '%s'", ldapCreds.Username)
@@ -146,6 +144,7 @@ func (c *AuthorizationCore) LdapAuthSignIn(in *mtproto.TLAuthSignIn) (*mtproto.A
 	sendCodeReply, err := c.AuthSendCode(&mtproto.TLAuthSendCode{
 		ApiId:       4,
 		ApiHash:     "014b35b6184100b085b0d0572f9b5103",
+		Settings:    &mtproto.CodeSettings{},
 		PhoneNumber: ldapUserData.PhoneNumber,
 	})
 	if err != nil {
@@ -156,18 +155,25 @@ func (c *AuthorizationCore) LdapAuthSignIn(in *mtproto.TLAuthSignIn) (*mtproto.A
 	in.PhoneNumber = ldapUserData.PhoneNumber
 	in.PhoneCode_STRING = "12345"
 	in.PhoneCodeHash = sendCodeReply.PhoneCodeHash
-	return c.AuthSignIn(in)
-}
 
-// Authenticating against LDAP and passing the phone, first and last names on.
-func (c *AuthorizationCore) LdapAuthSignUp(in *mtproto.TLAuthSignUp) (*mtproto.Auth_Authorization, error) {
-	ldapUserData, err := c.tryGettingLdapData(in.PhoneNumber)
+	signInRes, err := c.AuthSignIn(in)
 	if err != nil {
 		return nil, err
 	}
 
-	in.PhoneNumber = ldapUserData.PhoneNumber
-	in.FirstName = ldapUserData.FirstName
-	in.LastName = ldapUserData.LastName
-	return c.AuthSignUp(in)
+	if signInRes.PredicateName == mtproto.Predicate_auth_authorizationSignUpRequired {
+		c.Logger.Debugf("sign up required -- signing up LDAP user with phone '%s'", in.PhoneNumber)
+		signUpRes, err := c.AuthSignUp(&mtproto.TLAuthSignUp{
+			PhoneNumber:   in.PhoneNumber,
+			PhoneCodeHash: in.PhoneCodeHash,
+			FirstName:     ldapUserData.FirstName,
+			LastName:      ldapUserData.LastName,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return signUpRes, nil
+	}
+
+	return signInRes, nil
 }
