@@ -25,7 +25,7 @@ createConfigs() {
       | sed "s#127.0.0.1:2379#$ETCD_URL#g" \
       | sed "s#127.0.0.1:6379#$REDIS_HOST#g" \
       | sed "s#localhost:6379#$REDIS_HOST#g" \
-      | sed "s#root:@tcp(127.0.0.1:3306)/teamgram?charset=utf8mb4#$MYSQL_URI#g" \
+      | sed "s#root:my_root_secret@tcp(127.0.0.1:3306)/teamgram?charset=utf8mb4#$MYSQL_URI#g" \
       | sed 's#AccessKeyID: minio#AccessKeyID: '"$MINIO_KEY"'#g' \
       | sed 's#SecretAccessKey: miniostorage#SecretAccessKey: '"$MINIO_SECRET"'#g' \
       | sed 's#UseSSL: false#UseSSL: '"$MINIO_SSL"'#g' \
